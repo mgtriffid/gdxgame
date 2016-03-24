@@ -4,9 +4,6 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 
-import com.badlogic.gdx.math.MathUtils.floor
-import com.badlogic.gdx.math.MathUtils.isZero
-
 /**
  * Created by mgtriffid on 10.03.16.
  */
@@ -138,8 +135,6 @@ class HeroState {
         internal var xSpeed: Float = 0.toFloat()
         internal var ySpeed: Float = 0.toFloat()
         internal var gAccel = -2000f
-        internal var previousStepTick: Int = 0
-        internal var previousStep: Int = 0
         internal var right = true
         internal var isStanding = false
     }
