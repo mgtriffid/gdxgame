@@ -24,18 +24,18 @@ class HeroState {
         with(current) {
             if (gameInput.leftPressed) {
                 if (!gameInput.rightPressed) {
-                    xSpeed = -300f
+                    xSpeed = -HERO_VELOCITY
                     right = false
                 }
             } else if (gameInput.rightPressed) {
-                xSpeed = 300f
+                xSpeed = HERO_VELOCITY
                 right = true
             } else {
                 xSpeed = 0f
             }
             xPos += (xSpeed * dt).toFloat()
             if (isStanding && gameInput.upPressed) {
-                ySpeed = 800f
+                ySpeed = JUMP_INITIAL_SPEED
                 isStanding = false
             }
             if (!isStanding) {
@@ -142,7 +142,8 @@ class HeroState {
     companion object {
         private var knight: TextureRegion? = null
         private var knightLeft: TextureRegion? = null
-
+        private val HERO_VELOCITY = 300f
+        private val JUMP_INITIAL_SPEED = 800f
         fun init() {
             val img = Texture("CadashSheet.gif")
             knight = TextureRegion(img, 0, 0, 52, 92)
