@@ -44,28 +44,6 @@ class HeroState {
             if (!isStanding) {
                 yPos += (ySpeed * dt + gAccel.toDouble() * dt * dt / 2).toFloat()
 
-
-                val lineBelowPrev = Math.floor((previous.yPos / 70).toDouble()).toInt()
-                val lineAboveCurr = Math.ceil((yPos / 70).toDouble()).toInt()
-                if (lineAboveCurr <= lineBelowPrev) {
-                    outer@ for (i in lineAboveCurr downTo lineBelowPrev) {
-                        val xBottomCenter = xPos + (xPos - previous.xPos) *
-                                (i * 70 - previous.yPos) / (yPos - previous.yPos)
-                        val xBottomRight = xBottomCenter + 26
-                        val xBottomLeft = xBottomCenter - 26
-                        val lineToleft = Math.floor((xBottomLeft / 70).toDouble()).toInt()
-                        val lineToRight = Math.ceil((xBottomRight / 70).toDouble()).toInt()
-                        for (j in lineToleft..lineToRight - 1) {
-                            if (gameMap.isFooting(i - 1, j)) {
-                                yPos = (i * 70).toFloat()
-                                xPos = xBottomCenter
-                                isStanding = true
-                                ySpeed = 0f
-                                break@outer
-                            }
-                        }
-                    }
-                }
             } else {
                 val line = (yPos / 70).toInt();
                 val xBottomCenter = xPos
@@ -79,12 +57,70 @@ class HeroState {
                     }
                 }
             }
+
+            if (right) {
+                val lineBehindCurrent = Math.floor(((xPos + 26) / 70).toDouble()).toInt()
+                val lineInFrontOfPrevious = Math.ceil(((previous.xPos + 26) / 70).toDouble()).toInt()
+                if (lineBehindCurrent <= lineInFrontOfPrevious) {
+                    outer@ for (j in lineBehindCurrent downTo lineInFrontOfPrevious) {
+                        val yBottom = yPos
+                        val yTop = yPos + 92
+                        val lineBelow = Math.floor((yBottom / 70).toDouble()).toInt()
+                        val lineAbove = Math.ceil((yTop / 70).toDouble()).toInt()
+                        for (i in lineBelow + 1 .. lineAbove) {
+                            if (gameMap.isSolid(i - 1, j)) {
+                                xPos = (j * 70).toFloat() - 26
+                                break@outer
+                            }
+                        }
+                    }
+                }
+            } else {
+                val lineBehindCurrent = Math.ceil(((xPos - 26) / 70).toDouble()).toInt()
+                val lineInFrontOfPrevious = Math.floor(((previous.xPos - 26)/ 70).toDouble()).toInt()
+                if (lineBehindCurrent >= lineInFrontOfPrevious) {
+                    outer@ for (j in lineBehindCurrent..lineInFrontOfPrevious) {
+                        val yBottom = yPos
+                        val yTop = yPos + 92
+                        val lineBelow = Math.floor((yBottom / 70).toDouble()).toInt()
+                        val lineAbove = Math.ceil((yTop / 70).toDouble()).toInt()
+                        for (i in lineBelow + 1 .. lineAbove) {
+                            if (gameMap.isSolid(i - 1, j - 1)) {
+                                xPos = (j * 70).toFloat() + 26
+                                break@outer
+                            }
+                        }
+                    }
+                }
+            }
+
+            val lineBelowPrev = Math.floor((previous.yPos / 70).toDouble()).toInt()
+            val lineAboveCurr = Math.ceil((yPos / 70).toDouble()).toInt()
+            if (lineAboveCurr <= lineBelowPrev) {
+                outer@ for (i in lineAboveCurr downTo lineBelowPrev) {
+                    val xBottomCenter = xPos
+                    val xBottomRight = xBottomCenter + 26
+                    val xBottomLeft = xBottomCenter - 26
+                    val lineToleft = Math.floor((xBottomLeft / 70).toDouble()).toInt()
+                    val lineToRight = Math.ceil((xBottomRight / 70).toDouble()).toInt()
+                    for (j in lineToleft..lineToRight - 1) {
+                        if (gameMap.isFooting(i - 1, j)) {
+                            yPos = (i * 70).toFloat()
+                            isStanding = true
+                            ySpeed = 0f
+                            break@outer
+                        }
+                    }
+                }
+            }
             ySpeed = if (isStanding) 0f else ySpeed + (dt * gAccel).toFloat()
 
         }
     }
 
     fun GameMap.isFooting(i: Int, j: Int) : Boolean = mapTiles[i][j] > mapTiles[i + 1][j]
+
+    fun GameMap.isSolid(i: Int, j: Int) : Boolean = mapTiles[i][j] == 3
 
     fun interpolateForRender(alpha: Double) {
         forRender.xPos = (previous.xPos + alpha * (current.xPos - previous.xPos).toDouble() * 1.0).toFloat()
