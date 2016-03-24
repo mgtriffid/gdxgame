@@ -24,11 +24,11 @@ class HeroState {
         with(current) {
             if (gameInput.leftPressed) {
                 if (!gameInput.rightPressed) {
-                    xSpeed = -HERO_VELOCITY
+                    xSpeed = -Constants.HERO_VELOCITY
                     right = false
                 }
             } else if (gameInput.rightPressed) {
-                xSpeed = HERO_VELOCITY
+                xSpeed = Constants.HERO_VELOCITY
                 right = true
             } else {
                 xSpeed = 0f
@@ -139,7 +139,7 @@ class HeroState {
         internal var isStanding = false
     }
 
-    companion object {
+    companion object Constants {
         private var knight: TextureRegion? = null
         private var knightLeft: TextureRegion? = null
         private val HERO_VELOCITY = 300f
