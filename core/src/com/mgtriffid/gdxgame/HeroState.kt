@@ -44,10 +44,10 @@ class HeroState {
             } else {
                 val line = (yPos / TILE_SIZE).toInt();
                 val xBottomCenter = xPos
-                val xBottomRight = xBottomCenter + 26
-                val xBottomLeft = xBottomCenter - 26
-                val lineToleft = Math.floor((xBottomLeft / TILE_SIZE).toDouble()).toInt()
-                val lineToRight = Math.ceil((xBottomRight / TILE_SIZE).toDouble()).toInt()
+                val xBottomRight = xBottomCenter + HALF_KNIGHT_WIDTH
+                val xBottomLeft = xBottomCenter - HALF_KNIGHT_WIDTH
+                val lineToleft = lineLess(xBottomLeft)
+                val lineToRight = lineGreater(xBottomRight)
                 for (j in lineToleft..lineToRight - 1) {
                     if (gameMap.mapTiles[line-1][j] == 0) {
                         isStanding = false;
@@ -56,34 +56,34 @@ class HeroState {
             }
 
             if (right) {
-                val lineBehindCurrent = Math.floor(((xPos + 26) / TILE_SIZE).toDouble()).toInt()
-                val lineInFrontOfPrevious = Math.ceil(((previous.xPos + 26) / TILE_SIZE).toDouble()).toInt()
+                val lineBehindCurrent = lineLess(xPos + HALF_KNIGHT_WIDTH)
+                val lineInFrontOfPrevious = lineGreater(previous.xPos + HALF_KNIGHT_WIDTH)
                 if (lineBehindCurrent <= lineInFrontOfPrevious) {
                     outer@ for (j in lineBehindCurrent downTo lineInFrontOfPrevious) {
                         val yBottom = yPos
                         val yTop = yPos + KNIGHT_HEIGHT
-                        val lineBelow = Math.floor((yBottom / TILE_SIZE).toDouble()).toInt()
-                        val lineAbove = Math.ceil((yTop / TILE_SIZE).toDouble()).toInt()
+                        val lineBelow = lineLess(yBottom)
+                        val lineAbove = lineGreater(yTop)
                         for (i in lineBelow + 1 .. lineAbove) {
                             if (gameMap.isSolid(i - 1, j)) {
-                                xPos = (j * TILE_SIZE).toFloat() - 26
+                                xPos = (j * TILE_SIZE).toFloat() - HALF_KNIGHT_WIDTH
                                 break@outer
                             }
                         }
                     }
                 }
             } else {
-                val lineBehindCurrent = Math.ceil(((xPos - 26) / TILE_SIZE).toDouble()).toInt()
-                val lineInFrontOfPrevious = Math.floor(((previous.xPos - 26)/ TILE_SIZE).toDouble()).toInt()
+                val lineBehindCurrent = lineGreater(xPos - HALF_KNIGHT_WIDTH)
+                val lineInFrontOfPrevious = lineLess(previous.xPos - HALF_KNIGHT_WIDTH)
                 if (lineBehindCurrent >= lineInFrontOfPrevious) {
                     outer@ for (j in lineBehindCurrent..lineInFrontOfPrevious) {
                         val yBottom = yPos
                         val yTop = yPos + KNIGHT_HEIGHT
-                        val lineBelow = Math.floor((yBottom / TILE_SIZE).toDouble()).toInt()
-                        val lineAbove = Math.ceil((yTop / TILE_SIZE).toDouble()).toInt()
+                        val lineBelow = lineLess(yBottom)
+                        val lineAbove = lineGreater(yTop)
                         for (i in lineBelow + 1 .. lineAbove) {
                             if (gameMap.isSolid(i - 1, j - 1)) {
-                                xPos = (j * TILE_SIZE).toFloat() + 26
+                                xPos = (j * TILE_SIZE).toFloat() + HALF_KNIGHT_WIDTH
                                 break@outer
                             }
                         }
@@ -91,15 +91,15 @@ class HeroState {
                 }
             }
             if (yPos < previous.yPos) {
-                val lineBelowPrev = Math.floor((previous.yPos / TILE_SIZE).toDouble()).toInt()
-                val lineAboveCurr = Math.ceil((yPos / TILE_SIZE).toDouble()).toInt()
+                val lineBelowPrev = lineLess(previous.yPos)
+                val lineAboveCurr = lineGreater(yPos)
                 if (lineAboveCurr <= lineBelowPrev) {
                     outer@ for (i in lineAboveCurr downTo lineBelowPrev) {
                         val xBottomCenter = xPos
-                        val xBottomRight = xBottomCenter + 26
-                        val xBottomLeft = xBottomCenter - 26
-                        val lineToleft = Math.floor((xBottomLeft / TILE_SIZE).toDouble()).toInt()
-                        val lineToRight = Math.ceil((xBottomRight / TILE_SIZE).toDouble()).toInt()
+                        val xBottomRight = xBottomCenter + HALF_KNIGHT_WIDTH
+                        val xBottomLeft = xBottomCenter - HALF_KNIGHT_WIDTH
+                        val lineToleft = lineLess(xBottomLeft)
+                        val lineToRight = lineGreater(xBottomRight)
                         for (j in lineToleft..lineToRight - 1) {
                             if (gameMap.isFooting(i - 1, j)) {
                                 yPos = (i * TILE_SIZE).toFloat()
@@ -111,15 +111,12 @@ class HeroState {
                     }
                 }
             } else {
-                val lineAbovePrev = Math.ceil(((previous.yPos + KNIGHT_HEIGHT) / TILE_SIZE).toDouble()).toInt()
-                val lineBelowCurr = Math.floor(((yPos + KNIGHT_HEIGHT) / TILE_SIZE).toDouble()).toInt()
+                val lineAbovePrev = lineGreater(previous.yPos + KNIGHT_HEIGHT)
+                val lineBelowCurr = lineLess(yPos + KNIGHT_HEIGHT)
                 if (lineBelowCurr >= lineAbovePrev) {
                     outer@ for (i in lineAbovePrev..lineBelowCurr) {
-                        val xBottomCenter = xPos
-                        val xBottomRight = xBottomCenter + 26
-                        val xBottomLeft = xBottomCenter - 26
-                        val lineToleft = Math.floor((xBottomLeft / TILE_SIZE).toDouble()).toInt()
-                        val lineToRight = Math.ceil((xBottomRight / TILE_SIZE).toDouble()).toInt()
+                        val lineToleft = lineLess(xPos - HALF_KNIGHT_WIDTH)
+                        val lineToRight = lineGreater(xPos + HALF_KNIGHT_WIDTH)
                         for (j in lineToleft..lineToRight - 1) {
                             if (gameMap.isSolid(i, j)) {
                                 yPos = (i * TILE_SIZE).toFloat() -KNIGHT_HEIGHT
@@ -136,6 +133,10 @@ class HeroState {
         }
     }
 
+    private @Strictfp fun lineGreater(xBottomRight: Float) = Math.ceil((xBottomRight / TILE_SIZE).toDouble()).toInt()
+
+    private @Strictfp fun lineLess(xBottomLeft: Float) = Math.floor((xBottomLeft / TILE_SIZE).toDouble()).toInt()
+
     fun GameMap.isFooting(i: Int, j: Int) : Boolean = mapTiles[i][j] > mapTiles[i + 1][j]
 
     fun GameMap.isSolid(i: Int, j: Int) : Boolean = mapTiles[i][j] == 3
@@ -147,7 +148,7 @@ class HeroState {
     }
 
     fun render(batch: SpriteBatch) {
-        batch.draw(if (forRender.right) knight else knightLeft, forRender.xPos - 26, forRender.yPos)
+        batch.draw(if (forRender.right) knight else knightLeft, forRender.xPos - HALF_KNIGHT_WIDTH, forRender.yPos)
     }
 
     private inner class HeroStateSnapshot {
@@ -163,8 +164,8 @@ class HeroState {
     companion object Constants {
         fun init() {
             val img = Texture("CadashSheet.gif")
-            knight = TextureRegion(img, 0, 27, 52, KNIGHT_HEIGHT)
-            knightLeft = TextureRegion(img, 52, 27, -52, KNIGHT_HEIGHT)
+            knight = TextureRegion(img, 0, 27, KNIGHT_WIDTH, KNIGHT_HEIGHT)
+            knightLeft = TextureRegion(img, KNIGHT_WIDTH, 27, -KNIGHT_WIDTH, KNIGHT_HEIGHT)
         }
     }
 }
@@ -174,3 +175,5 @@ private var knightLeft: TextureRegion? = null
 private val HERO_VELOCITY = 300f
 private val JUMP_INITIAL_SPEED = 800f
 private val KNIGHT_HEIGHT = 65
+private val KNIGHT_WIDTH = 52
+private val HALF_KNIGHT_WIDTH = KNIGHT_WIDTH / 2
