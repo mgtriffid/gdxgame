@@ -16,7 +16,7 @@ class GameMap {
             for (j in 0..18) {
                 tile = mapTiles[i][j]
                 if (tile > 0) {
-                    batch.draw(textures!![tile], (j * 70).toFloat(), (i * 70).toFloat())
+                    batch.draw(textures!![tile], (j * TILE_SIZE).toFloat(), (i * TILE_SIZE).toFloat())
                 }
             }
         }
@@ -52,3 +52,5 @@ class GameMap {
         }
     }
 }
+
+val TILE_SIZE = 70
