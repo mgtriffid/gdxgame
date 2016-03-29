@@ -23,7 +23,7 @@ class GameState internal constructor() {
         if (gameInput.mouseClicked) {
             val newBullet = bulletPool.obtain()
             activeBullets.add(newBullet)
-            newBullet.start(heroState.x, heroState.y + HALF_KNIGHT_HEIGHT, gameInput.mousePositionX, gameInput.mousePositionY);
+            newBullet.start(heroState.x, heroState.y, gameInput.mousePositionX, gameInput.mousePositionY);
         }
         var index = 0;
         while (index < activeBullets.size) {

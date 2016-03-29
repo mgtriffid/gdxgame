@@ -56,7 +56,7 @@ class HeroState {
                 yPos += (ySpeed * dt + gAccel.toDouble() * dt * dt / 2).toFloat()
 
             } else {
-                val line = (yPos / TILE_SIZE).toInt();
+                val line = ((yPos - HALF_KNIGHT_HEIGHT )/ TILE_SIZE).toInt();
                 val xBottomCenter = xPos
                 val xBottomRight = xBottomCenter + HALF_KNIGHT_WIDTH
                 val xBottomLeft = xBottomCenter - HALF_KNIGHT_WIDTH
@@ -74,8 +74,8 @@ class HeroState {
                 val lineInFrontOfPrevious = lineGreater(previous.xPos + HALF_KNIGHT_WIDTH)
                 if (lineBehindCurrent <= lineInFrontOfPrevious) {
                     outer@ for (j in lineBehindCurrent downTo lineInFrontOfPrevious) {
-                        val yBottom = yPos
-                        val yTop = yPos + KNIGHT_HEIGHT
+                        val yBottom = yPos - HALF_KNIGHT_HEIGHT
+                        val yTop = yPos + HALF_KNIGHT_HEIGHT
                         val lineBelow = lineLess(yBottom)
                         val lineAbove = lineGreater(yTop)
                         for (i in lineBelow + 1 .. lineAbove) {
@@ -91,8 +91,8 @@ class HeroState {
                 val lineInFrontOfPrevious = lineLess(previous.xPos - HALF_KNIGHT_WIDTH)
                 if (lineBehindCurrent >= lineInFrontOfPrevious) {
                     outer@ for (j in lineBehindCurrent..lineInFrontOfPrevious) {
-                        val yBottom = yPos
-                        val yTop = yPos + KNIGHT_HEIGHT
+                        val yBottom = yPos - HALF_KNIGHT_HEIGHT
+                        val yTop = yPos + HALF_KNIGHT_HEIGHT
                         val lineBelow = lineLess(yBottom)
                         val lineAbove = lineGreater(yTop)
                         for (i in lineBelow + 1 .. lineAbove) {
@@ -105,8 +105,8 @@ class HeroState {
                 }
             }
             if (yPos < previous.yPos) {
-                val lineBelowPrev = lineLess(previous.yPos)
-                val lineAboveCurr = lineGreater(yPos)
+                val lineBelowPrev = lineLess(previous.yPos - HALF_KNIGHT_HEIGHT)
+                val lineAboveCurr = lineGreater(yPos - HALF_KNIGHT_HEIGHT)
                 if (lineAboveCurr <= lineBelowPrev) {
                     outer@ for (i in lineAboveCurr downTo lineBelowPrev) {
                         val xBottomCenter = xPos
@@ -116,7 +116,7 @@ class HeroState {
                         val lineToRight = lineGreater(xBottomRight)
                         for (j in lineToleft..lineToRight - 1) {
                             if (gameMap.isFooting(i - 1, j)) {
-                                yPos = (i * TILE_SIZE).toFloat()
+                                yPos = (i * TILE_SIZE).toFloat() + HALF_KNIGHT_HEIGHT
                                 isStanding = true
                                 ySpeed = 0f
                                 break@outer
@@ -125,15 +125,15 @@ class HeroState {
                     }
                 }
             } else {
-                val lineAbovePrev = lineGreater(previous.yPos + KNIGHT_HEIGHT)
-                val lineBelowCurr = lineLess(yPos + KNIGHT_HEIGHT)
+                val lineAbovePrev = lineGreater(previous.yPos + HALF_KNIGHT_HEIGHT)
+                val lineBelowCurr = lineLess(yPos + HALF_KNIGHT_HEIGHT)
                 if (lineBelowCurr >= lineAbovePrev) {
                     outer@ for (i in lineAbovePrev..lineBelowCurr) {
                         val lineToleft = lineLess(xPos - HALF_KNIGHT_WIDTH)
                         val lineToRight = lineGreater(xPos + HALF_KNIGHT_WIDTH)
                         for (j in lineToleft..lineToRight - 1) {
                             if (gameMap.isSolid(i, j)) {
-                                yPos = (i * TILE_SIZE).toFloat() -KNIGHT_HEIGHT
+                                yPos = (i * TILE_SIZE).toFloat() - HALF_KNIGHT_HEIGHT
                                 ySpeed = 0f
                                 break@outer
                             }
@@ -162,7 +162,7 @@ class HeroState {
     }
 
     fun render(batch: SpriteBatch) {
-        batch.draw(if (forRender.right) knight else knightLeft, forRender.xPos - HALF_KNIGHT_WIDTH, forRender.yPos)
+        batch.draw(if (forRender.right) knight else knightLeft, forRender.xPos - HALF_KNIGHT_WIDTH, forRender.yPos - HALF_KNIGHT_HEIGHT)
     }
 
     private inner class HeroStateSnapshot {
