@@ -1,29 +1,51 @@
 package com.mgtriffid.gdxgame
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.utils.Pool
+import com.badlogic.gdx.utils.Array as GdxArray
 
 /**
  * Created by mgtriffid on 10.03.16.
  */
 class GameState internal constructor() {
-    private val heroState: HeroState
+    val heroState: HeroState
     private val gameMap: GameMap
+    private val bulletPool: Pool<Bullet>
+    private val activeBullets: GdxArray<Bullet>
 
     fun currentToPrevious() {
         heroState.currentToPrevious()
+        activeBullets.forEach { it.currentToPrevious() }
     }
 
     fun integrateCurrent(t: Float, dt: Float, gameInput: GameInput) {
         heroState.integrateCurrent(t, dt, gameInput, gameMap)
+        if (gameInput.mouseClicked) {
+            val newBullet = bulletPool.obtain()
+            activeBullets.add(newBullet)
+            newBullet.start(heroState.x, heroState.y + HALF_KNIGHT_HEIGHT, gameInput.mousePositionX, gameInput.mousePositionY);
+        }
+        var index = 0;
+        while (index < activeBullets.size) {
+            activeBullets[index].integrateCurrent(t, dt);
+            if (activeBullets[index].isDead) {
+                bulletPool.free(activeBullets.removeIndex(index))
+
+            } else {
+                index++
+            }
+        }
     }
 
     fun interpolateForRender(alpha: Double) {
         heroState.interpolateForRender(alpha)
+        activeBullets.forEach { it.interpolateForRender(alpha) }
     }
 
     fun render(batch: SpriteBatch) {
         gameMap.render(batch)
         heroState.render(batch)
+        activeBullets.forEach { it.render(batch) }
     }
 
     init {
@@ -31,5 +53,13 @@ class GameState internal constructor() {
         HeroState.init()
         gameMap = GameMap()
         GameMap.init()
+        bulletPool = object: Pool<Bullet>() {
+            override fun newObject() : Bullet {
+                return Bullet();
+            }
+        }
+        activeBullets = GdxArray<Bullet>(false, 16)
+
+
     }
 }

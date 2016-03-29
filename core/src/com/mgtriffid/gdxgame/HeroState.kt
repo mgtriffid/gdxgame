@@ -11,6 +11,20 @@ class HeroState {
     private val current = HeroStateSnapshot()
     private val previous = HeroStateSnapshot()
     private val forRender = HeroStateSnapshot()
+    val x : Float
+        get() = current.xPos
+
+    val y : Float
+        get() = current.yPos
+
+    val xRender : Float
+        get() = forRender.xPos
+
+    val yRender : Float
+        get() = forRender.yPos
+
+
+
 
     fun currentToPrevious() {
         previous.xPos = current.xPos
@@ -133,9 +147,9 @@ class HeroState {
         }
     }
 
-    private @Strictfp fun lineGreater(xBottomRight: Float) = Math.ceil((xBottomRight / TILE_SIZE).toDouble()).toInt()
+    private @Strictfp fun lineGreater(xBottomRight: Float) = StrictMath.ceil((xBottomRight / TILE_SIZE).toDouble()).toInt()
 
-    private @Strictfp fun lineLess(xBottomLeft: Float) = Math.floor((xBottomLeft / TILE_SIZE).toDouble()).toInt()
+    private @Strictfp fun lineLess(xBottomLeft: Float) = StrictMath.floor((xBottomLeft / TILE_SIZE).toDouble()).toInt()
 
     fun GameMap.isFooting(i: Int, j: Int) : Boolean = mapTiles[i][j] > mapTiles[i + 1][j]
 
@@ -152,7 +166,7 @@ class HeroState {
     }
 
     private inner class HeroStateSnapshot {
-        internal var xPos = 400f
+        internal var xPos = 450f
         internal var yPos = 400f
         internal var xSpeed: Float = 0.toFloat()
         internal var ySpeed: Float = 0.toFloat()
@@ -176,4 +190,5 @@ private val HERO_VELOCITY = 300f
 private val JUMP_INITIAL_SPEED = 800f
 private val KNIGHT_HEIGHT = 65
 private val KNIGHT_WIDTH = 52
-private val HALF_KNIGHT_WIDTH = KNIGHT_WIDTH / 2
+val HALF_KNIGHT_HEIGHT = KNIGHT_HEIGHT / 2
+val HALF_KNIGHT_WIDTH = KNIGHT_WIDTH / 2
