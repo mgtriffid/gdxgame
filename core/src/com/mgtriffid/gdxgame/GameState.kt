@@ -18,12 +18,15 @@ class GameState internal constructor() {
         activeBullets.forEach { it.currentToPrevious() }
     }
 
+    private var recharge = 0f
+
     fun integrateCurrent(t: Float, dt: Float, gameInput: GameInput) {
         heroState.integrateCurrent(t, dt, gameInput, gameMap)
-        if (gameInput.mouseClicked) {
+        if (gameInput.mouseClicked && recharge < t) {
             val newBullet = bulletPool.obtain()
             activeBullets.add(newBullet)
             newBullet.start(heroState.x, heroState.y, gameInput.mousePositionX, gameInput.mousePositionY);
+            recharge = t + 0.2f
         }
         var index = 0;
         while (index < activeBullets.size) {
