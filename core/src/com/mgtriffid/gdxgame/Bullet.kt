@@ -68,17 +68,17 @@ class Bullet {
         } else {
             renderingTick++
         }
-        batch.draw(FIREBALL_TEXTURES.get(textureToRender), forRender.xPos - 32, forRender.yPos - 32, 32f, 32f, 64f, 64f, 1f , 1f ,rotation)
-//        batch.draw(FIREBALL_TEXTURE, forRender.xPos - FIREBALL_HALF_WIDTH, forRender.yPos - FIREBALL_HALF_WIDTH)
+        batch.draw(FIREBALL_TEXTURES.get(textureToRender), forRender.xPos - 32, forRender.yPos - 32, rotation)
     }
 
 }
 
+fun SpriteBatch.draw(region: TextureRegion, x: Float, y: Float, rotation : Float) {
+    val width = region.regionWidth.toFloat()
+    val height = region.regionHeight.toFloat()
+    this.draw(region, x, y, width / 2, height / 2 , width, height, 1f, 1f, rotation)
+}
+
 private val BULLET_SPEED = 500f
-val FIREBALL_WIDTH = 20
-val FIREBALL_HALF_WIDTH = FIREBALL_WIDTH / 2
-val FIREBALL_HEIGHT = 42
-val FIREBALL_HALF_HEIGHT = FIREBALL_HEIGHT / 2
 private val FIREBALL_SOURCE_TEXTURE = Texture("fireball_0.png")
-private val FIREBALL_TEXTURE = TextureRegion(Texture("rpg_magic_zps7b6c1492.PNG"), 168, 102, FIREBALL_WIDTH, FIREBALL_HEIGHT);
 private val FIREBALL_TEXTURES = (0..7).map { TextureRegion(FIREBALL_SOURCE_TEXTURE, it * 64, 256, 64, 64) }

@@ -12,10 +12,10 @@ class HeroState {
     private val previous = HeroStateSnapshot()
     private val forRender = HeroStateSnapshot()
     val x : Float
-        get() = current.xPos
+        get() = previous.xPos
 
     val y : Float
-        get() = current.yPos
+        get() = previous.yPos
 
     val xRender : Float
         get() = forRender.xPos

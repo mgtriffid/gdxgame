@@ -10,21 +10,27 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 class MyGdxGame : ApplicationAdapter() {
     internal lateinit var batch: SpriteBatch
 
-    internal var tick: Long = 0
-    internal var t = 0.0f
-    internal var dt = 0.04f
+    internal var tick: Byte = 0
+
     internal var currentTime = System.currentTimeMillis() * 0.001
     internal var accumulator = 0.0
     internal var gameInput = GameInput()
-    private lateinit var gameState: GameState
     private lateinit var cam: OrthographicCamera
     internal var cameraPositionXOffset = 0f;
     internal var cameraPositionYOffset = 0f;
 
+    private lateinit var networkingThread: NetworkingThread
+
+    private lateinit var gameLogic: GameLogic
+
     override fun create() {
         batch = SpriteBatch()
-        gameState = GameState()
         cam = OrthographicCamera(CAMERA_WIDTH, CAMERA_HEIGHT);
+        gameLogic = GameLogic(gameInput)
+        gameLogic.init()
+        networkingThread = NetworkingThread()
+        networkingThread.run()
+        gameLogic.networkingThread = networkingThread
     }
 
     @Strictfp override fun render() {
@@ -37,14 +43,17 @@ class MyGdxGame : ApplicationAdapter() {
         currentTime = newTime
         accumulator += frameTime
 
-        while (accumulator >= dt) {
+        while (accumulator >= gameLogic.dt) {
             tick++
-            shiftState()
-            accumulator -= dt
+            sampleInputsToNetwork()
+            gameLogic.grabStateFromNetwork()
+            gameLogic.shiftState()
+
+            accumulator -= gameLogic.dt
             resetInputs()
         }
 
-        val alpha = accumulator / dt
+        val alpha = accumulator / gameLogic.dt
 
         interpolateForRender(alpha)
 
@@ -52,16 +61,14 @@ class MyGdxGame : ApplicationAdapter() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         cam.update()
         batch.projectionMatrix = cam.combined
-        cam.stare(gameState, cameraPositionXOffset, cameraPositionYOffset)
+        cam.stare(gameLogic.gameState, cameraPositionXOffset, cameraPositionYOffset)
         batch.begin()
-        gameState.render(batch)
+        gameLogic.gameState.render(batch)
         batch.end()
     }
 
-    private fun shiftState() {
-        gameState.currentToPrevious()
-        gameState.integrateCurrent(t, dt, gameInput)
-        t += dt
+    private fun sampleInputsToNetwork() {
+        networkingThread.submitInputs(gameInput, tick)
     }
 
     private fun resetInputs() {
@@ -71,7 +78,7 @@ class MyGdxGame : ApplicationAdapter() {
     }
 
     private fun interpolateForRender(alpha: Double) {
-        gameState.interpolateForRender(alpha)
+        gameLogic.gameState.interpolateForRender(alpha)
     }
 
     private fun receiveInputs() {
@@ -83,8 +90,8 @@ class MyGdxGame : ApplicationAdapter() {
         val yRaw = Gdx.input.y
         cameraPositionXOffset = (xRaw - CAMERA_HALF_WIDTH) * 0.7f
         cameraPositionYOffset = (CAMERA_HALF_HEIGHT - yRaw) * 0.7f
-        gameInput.mousePositionX = xRaw - CAMERA_HALF_WIDTH + cameraPositionXOffset + gameState.heroState.xRender
-        gameInput.mousePositionY = CAMERA_HALF_HEIGHT - yRaw + cameraPositionYOffset + gameState.heroState.yRender + HALF_KNIGHT_HEIGHT
+        gameInput.mousePositionX = xRaw - CAMERA_HALF_WIDTH + cameraPositionXOffset + gameLogic.gameState.heroState.xRender
+        gameInput.mousePositionY = CAMERA_HALF_HEIGHT - yRaw + cameraPositionYOffset + gameLogic.gameState.heroState.yRender + HALF_KNIGHT_HEIGHT
     }
 }
 
